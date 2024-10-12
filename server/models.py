@@ -20,10 +20,25 @@ class Restaurant(db.Model, SerializerMixin):
     restaurant_pizzas = db.relationship('RestaurantPizza', backref='restaurant')
     pizzas = association_proxy('restaurant_pizzas', 'pizza')
 
-    serialize_rules = ('-restaurant_pizzas.restaurant',)
+    def to_dict(self, include_pizzas=False):
+        data = {
+            'id': self.id,
+            'name': self.name,
+            'address': self.address
+        }
+        if include_pizzas:
+            data['restaurant_pizzas'] = [
+                {
+                    'id': rp.id,
+                    'price': rp.price,
+                    'pizza': rp.pizza.to_dict()
+                } for rp in self.restaurant_pizzas
+            ]
+        return data
 
     def __repr__(self):
         return f'<Restaurant {self.name}>'
+
 
 class Pizza(db.Model, SerializerMixin):
     __tablename__ = 'pizzas'
