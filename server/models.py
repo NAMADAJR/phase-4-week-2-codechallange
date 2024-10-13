@@ -39,7 +39,6 @@ class Restaurant(db.Model, SerializerMixin):
     def __repr__(self):
         return f'<Restaurant {self.name}>'
 
-
 class Pizza(db.Model, SerializerMixin):
     __tablename__ = 'pizzas'
 
@@ -48,12 +47,14 @@ class Pizza(db.Model, SerializerMixin):
     ingredients = db.Column(db.String, nullable=False)
 
     restaurant_pizzas = db.relationship('RestaurantPizza', backref='pizza')
-    restaurants = association_proxy('restaurant_pizzas', 'restaurant')
 
-    serialize_rules = ('-restaurant_pizzas.pizza',)
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'ingredients': self.ingredients
+        }
 
-    def __repr__(self):
-        return f'<Pizza {self.name}, {self.ingredients}>'
 
 class RestaurantPizza(db.Model, SerializerMixin):
     __tablename__ = 'restaurant_pizzas'
